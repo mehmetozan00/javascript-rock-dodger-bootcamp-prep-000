@@ -5,97 +5,85 @@ const DODGER = document.getElementById('dodger')
 const GAME = document.getElementById('game')
 const GAME_HEIGHT = 400
 const GAME_WIDTH = 400
-const LEFT_ARROW = 37 // use e.which!
-const RIGHT_ARROW = 39 // use e.which!
+const LEFT_ARROW = 37
+const RIGHT_ARROW = 39
 const ROCKS = []
 const START = document.getElementById('start')
 
 var gameInterval = null
 
 function checkCollision(rock) {
-
   const top = positionToInteger(rock.style.top)
+
   if (top > 360) {
+    const dodgerLeftEdge = positionToInteger(DODGER.style.left);
+    const dodgerRightEdge = dodgerLeftEdge+40;
+    const rockLeftEdge = positionToInteger(rock.style.left);
+    const rockRightEdge = rockLeftEdge+20;
 
-    // Dodger Left-Right Edges
-    const dodgerLeftEdge  = positionToInteger(DODGER.style.left);
-    const dodgerRightEdge = dodgerLeftEdge + 40;
-
-    // Rock Left-Right Edges
-    const rockLeftEdge  = positionToInteger(rock.style.left);
-    const rockRightEdge = rockLeftEdge + 20;
-
-    if ( (rockLeftEdge <= dodgerLeftEdge && rockRightEdge >= dodgerLeftEdge) ||
-         (rockLeftEdge >= dodgerLeftEdge && rockRightEdge <= dodgerRightEdge) ||
-         (rockLeftEdge <= dodgerRightEdge && rockRightEdge >= dodgerRightEdge))
-      {
-      return true;
-    }
+    return (
+      (rockLeftEdge <= dodgerLeftEdge && rockRightEdge >= dodgerLeftEdge) ||
+      (rockLeftEdge >= dodgerLeftEdge && rockRightEdge <= dodgerRightEdge) ||
+      (rockLeftEdge <= dodgerRightEdge && rockRightEdge >= dodgerRightEdge))
   }
 }
 
 function createRock(x) {
   const rock = document.createElement('div')
-
-  rock.className = 'rock';
-  rock.style.left = `${x}px`;
+  rock.className = 'rock'
+  rock.style.left = `${x}px`
 
   var top = 0
-  rock.style.top = `${top}px`;
+  rock.style.top = `${top}px`
+
   GAME.appendChild(rock);
 
-
   function moveRock() {
-
-    if (checkCollision(rock) === true){
-        endGame();
+    if(checkCollision(rock)===true){
+      endGame();
     }
     else if (top < GAME_HEIGHT-20) {
-       top+=4;
-       rock.style.top = `${top}px`
-       window.requestAnimationFrame(moveRock);
-     }
-     else if (top >= GAME_HEIGHT-20) {
-       GAME.removeChild(rock);
-       ROCKS.shift();
-     }
+      top+=4;
+      rock.style.top = `${top}px`
+      window.requestAnimationFrame(moveRock);
+    }
+    else if (top >= GAME_HEIGHT-20) {
+      GAME.removeChild(rock);
+      ROCKS.shift();
+    }
   }
 
-  // We should kick of the animation of the rock around here
-
-  // Add the rock to ROCKS so that we can remove all rocks
-  // when there's a collision
-  ROCKS.push(rock)
   moveRock();
-  // Finally, return the rock element you've created
-  return rock
+
+  ROCKS.push(rock);
+  return rock;
 }
 
- function endGame() {
-   while(ROCKS.length > 0){
-     GAME.removeChild(ROCKS[0]);
-     ROCKS.shift();
-   }
+function endGame() {
+  while(ROCKS.length > 0){
+    GAME.removeChild(ROCKS[0]);
+    ROCKS.shift();
+  }
 
-   clearInterval(gameInterval);
-   window.removeEventListener('keydown', moveDodger);
-   alert("YOU LOSE!");
-   START.innerHTML = 'Play again?'
-   START.style.display = 'inline'
- }
+  clearInterval(gameInterval);
+  window.removeEventListener('keydown', moveDodger);
+  alert("YOU LOSE!");
+  START.innerHTML = 'Play again?'
+  START.style.display = 'inline'
+}
 
 function moveDodger(e) {
-  if (e.which === LEFT_ARROW) {
-    e.stopPropagation();
-    e.preventDefault();
-    moveDodgerLeft();
+    if (e.which === LEFT_ARROW) {
+      e.stopPropagation();
+      e.preventDefault();
+      moveDodgerLeft();
+    }
+    else if(e.which === RIGHT_ARROW){
+      e.stopPropagation();
+      e.preventDefault();
+      moveDodgerRight();
+    }
   }
-  else if(e.which === RIGHT_ARROW){
-    e.stopPropagation();
-    e.preventDefault();
-    moveDodgerRight();
-  }
-}
 
 function moveDodgerLeft() {
   const left = positionToInteger(dodger.style.left);
@@ -125,8 +113,7 @@ function start() {
   window.addEventListener('keydown', moveDodger)
 
   START.style.display = 'none'
-
   gameInterval = setInterval(function() {
-    createRock(Math.floor(Math.random() *  (GAME_WIDTH - 20)))
-  }, 1000)
+      createRock(Math.floor(Math.random() *  (GAME_WIDTH - 20)))
+    }, 1000)
 }
